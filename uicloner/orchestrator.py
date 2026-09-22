@@ -34,6 +34,8 @@ class CloneResult:
     warnings: list[str] = field(default_factory=list)
     stats: dict = field(default_factory=dict)
     preflight: Optional[dict] = None
+    prompt_path: Optional[Path] = None
+    prompt_summary: Optional[str] = None
 
 
 # Progress callback type: (step_name, progress_0_to_1, message, optional_snapshot)
@@ -396,6 +398,29 @@ async def run_clone(
         if oracle and getattr(config.preflight, "save_preflight_report", True):
             serializer.write_json("preflight", oracle.to_dict())
 
+        # -----------------------------------------------------------------------
+        # Layer 5: UI-to-Prompt Synthesizer (Optional)
+        # -----------------------------------------------------------------------
+        prompt_bundle = None
+        prompt_path = None
+        if getattr(config, "prompt_gen", None) and getattr(config.prompt_gen, "enabled", False):
+            emit("prompt", 0.94, f"Synthesizing UI to Master AI Prompt ({config.prompt_gen.target.value.upper()})...")
+            try:
+                from uicloner.layers.layer5_prompt import generate_ui_prompt
+                prompt_bundle = generate_ui_prompt(
+                    url=url,
+                    config=config,
+                    dom_data=dom_data,
+                    dismantle_report=dismantle_report,
+                    behavior_report=behavior_report,
+                    anim_data=anim_data,
+                    asset_records=asset_records,
+                )
+                prompt_path = serializer.write_prompt_bundle(prompt_bundle)
+                emit("prompt", 0.98, f"Master prompt generated: {len(prompt_bundle.master_prompt):,} chars → {prompt_path.name}")
+            except Exception as e:
+                logger.warning(f"UI Prompt synthesis failed: {e}")
+
         elapsed = time.time() - start_time
         if oracle:
             oracle.mark_complete(f"Clone complete in {elapsed:.1f}s → {clone_dir}")
@@ -426,6 +451,8 @@ async def run_clone(
                 "buttons": dismantle_report.buttons_count if dismantle_report else 0,
             },
             preflight=oracle.to_dict() if oracle else None,
+            prompt_path=prompt_path,
+            prompt_summary=prompt_bundle.summary if prompt_bundle else None,
         )
 
     except Exception as exc:

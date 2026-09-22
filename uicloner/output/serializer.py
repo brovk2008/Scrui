@@ -459,3 +459,19 @@ class OutputSerializer:
         path = self.site_dir / filename
         path.write_text(html, encoding="utf-8")
         return path
+
+    def write_prompt_bundle(self, bundle: Any) -> Path:
+        """Write the Layer 5 prompt bundle (PROMPT.md, SPEC.md, components_schema.json)."""
+        prompt_dir = self.data_dir / "prompt"
+        prompt_dir.mkdir(parents=True, exist_ok=True)
+
+        master_path = prompt_dir / "PROMPT.md"
+        master_path.write_text(bundle.master_prompt, encoding="utf-8")
+
+        spec_path = prompt_dir / "SPEC.md"
+        spec_path.write_text(bundle.technical_spec, encoding="utf-8")
+
+        schema_path = prompt_dir / "components_schema.json"
+        schema_path.write_text(json.dumps(bundle.components_schema, indent=2, ensure_ascii=False), encoding="utf-8")
+
+        return master_path

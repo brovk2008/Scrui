@@ -178,3 +178,16 @@ output:
   root_folder_prefix: "site_cloned_"
   # Configurable structured data folder name (e.g. data_structure or data)
   data_folder_name: "data_structure"
+
+prompt_gen:
+  # Layer 5: UI-to-Prompt Synthesizer (Optional)
+  # Converts reverse-engineered UI into master AI prompts for Claude, GPT-4o, Cursor, or v0.dev
+  enabled: false
+  # target: nextjs (Next.js 15 App Router + Tailwind), react, v0, cursor, vue, svelte
+  target: nextjs
+  include_screenshot_context: true
+  include_state_machine: true
+  include_motion_specs: true
+  include_copy_inventory: true
+  output_subfolder: prompt
+

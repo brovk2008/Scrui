@@ -63,6 +63,15 @@ class TLSImpersonate(str, Enum):
     SAFARI18 = "safari18"
 
 
+class PromptTarget(str, Enum):
+    NEXTJS = "nextjs"       # Next.js 15 App Router + Tailwind + Framer Motion
+    REACT = "react"         # React 19 + Tailwind CSS
+    V0 = "v0"               # v0.dev / Lovable / Bolt.new prompt
+    CURSOR = "cursor"       # Cursor / Windsurf / Claude Code project rules & spec
+    VUE = "vue"             # Vue 3 + Tailwind CSS
+    SVELTE = "svelte"       # SvelteKit + Tailwind CSS
+
+
 # ---------------------------------------------------------------------------
 # Sub-config models
 # ---------------------------------------------------------------------------
@@ -290,6 +299,17 @@ class PreflightConfig(BaseModel):
     save_preflight_report: bool = True
 
 
+class PromptGenConfig(BaseModel):
+    """Configuration for Layer 5: UI-to-Prompt Synthesizer (Optional)."""
+    enabled: bool = False  # Optional by default
+    target: PromptTarget = PromptTarget.NEXTJS
+    include_screenshot_context: bool = True
+    include_state_machine: bool = True
+    include_motion_specs: bool = True
+    include_copy_inventory: bool = True
+    output_subfolder: str = "prompt"
+
+
 # ---------------------------------------------------------------------------
 # Master config
 # ---------------------------------------------------------------------------
@@ -299,6 +319,7 @@ class UICloneConfig(BaseModel):
 
     # Sub-configs
     preflight: PreflightConfig = PreflightConfig()
+    prompt_gen: PromptGenConfig = PromptGenConfig()
     browser: BrowserConfig = BrowserConfig()
     fingerprint: FingerprintConfig = FingerprintConfig()
     evasion: EvasionConfig = EvasionConfig()

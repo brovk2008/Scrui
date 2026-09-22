@@ -36,7 +36,7 @@ We are committed to providing a welcoming, inclusive, and harassment-free experi
 
 ## Architecture Overview
 
-Scrui is structured into 6 specialized pipeline layers:
+Scrui is structured into 7 specialized pipeline layers:
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -66,9 +66,15 @@ Scrui is structured into 6 specialized pipeline layers:
 └──────────────────────────┬─────────────────────────────┘
                            │
 ┌──────────────────────────▼─────────────────────────────┐
-│  LAYER 4: Validation & Structured Storage              │
-│  Pixel Diff · Closed-Loop Auto-Correct · SQLite DB     │
+│  LAYER 4: Validation & Closed-Loop Auto-Correction     │
+│  Pixel Diff · Closed-Loop Visual Optimizer · SQLite DB │
 │  Dual Output: <site_name>/ & data_structure/           │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+┌──────────────────────────▼─────────────────────────────┐
+│  LAYER 5: UI-to-Prompt Synthesizer (Optional)          │
+│  Design Tokens · Component AST · Copy Matrix · State   │
+│  Outputs: PROMPT.md · SPEC.md · components_schema.json │
 └────────────────────────────────────────────────────────┘
 ```
 

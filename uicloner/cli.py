@@ -89,6 +89,8 @@ def clone_url(
     no_auto_correct: bool = typer.Option(False, "--no-auto-correct", help="Skip closed-loop visual auto-correction"),
     no_explore: bool = typer.Option(False, "--no-explore", help="Skip interactive behavioral state exploration"),
     no_preflight: bool = typer.Option(False, "--no-preflight", help="Skip Layer -1 pre-flight target profiling"),
+    prompt: bool = typer.Option(False, "--prompt", help="Enable Layer 5: UI-to-Prompt synthesis"),
+    prompt_target: Optional[str] = typer.Option(None, "--prompt-target", help="Prompt target: nextjs/react/v0/cursor/vue/svelte"),
     llm_provider: Optional[str] = typer.Option(None, "--llm-provider", help="LLM provider: groq/openrouter/gemini/huggingface/ollama"),
     hf_key: Optional[str] = typer.Option(None, "--hf-key", envvar="HF_API_KEY", help="HuggingFace API key"),
     captcha_key: Optional[str] = typer.Option(None, "--captcha-key", envvar="TWO_CAPTCHA_KEY", help="2captcha API key"),
@@ -99,12 +101,17 @@ def clone_url(
     _setup_logging(verbose)
     print_banner()
 
-    from uicloner.config import UICloneConfig, BrowserEngine, ImageStorageFormat, FontStorageFormat, OutputDataFormat
+    from uicloner.config import UICloneConfig, BrowserEngine, ImageStorageFormat, FontStorageFormat, OutputDataFormat, PromptTarget
     from uicloner.orchestrator import run_clone
 
     cfg = UICloneConfig.from_yaml(config_file) if config_file else UICloneConfig.default()
 
     # Apply CLI overrides
+    if prompt:
+        cfg.prompt_gen.enabled = True
+    if prompt_target:
+        cfg.prompt_gen.target = PromptTarget(prompt_target)
+        cfg.prompt_gen.enabled = True
     if engine:
         cfg.browser.primary_engine = BrowserEngine(engine)
     if output_dir:
@@ -402,6 +409,75 @@ def build_sitemap(
     console.print(f"[green]✅ Sitemap generated: {result.get('output_dir')}[/green]")
 
 
+@app.command("prompt")
+def prompt_site(
+    url: str = typer.Argument(..., help="Target URL to synthesize into a Master AI Prompt"),
+    target: str = typer.Option("nextjs", "--target", "-t", help="Target framework: nextjs/react/v0/cursor/vue/svelte"),
+    config_file: Optional[Path] = typer.Option(None, "--config", "-c", help="Config YAML path"),
+    output_dir: Optional[Path] = typer.Option(None, "--output", "-o", help="Output directory"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
+):
+    """[bold #ff2a85]Synthesize any website UI into a Master Prompt for AI coding models (v0, Cursor, Next.js).[/bold #ff2a85]"""
+    _setup_logging(verbose)
+    print_banner()
+
+    from uicloner.config import UICloneConfig, PromptTarget
+    from uicloner.orchestrator import run_clone
+
+    cfg = UICloneConfig.from_yaml(config_file) if config_file else UICloneConfig.default()
+    cfg.prompt_gen.enabled = True
+    cfg.prompt_gen.target = PromptTarget(target)
+    if output_dir:
+        cfg.output.base_dir = output_dir
+
+    console.print(Panel.fit(
+        f"[bold {COLOR_PINK}]UI-to-Prompt Synthesizer (Layer 5)[/bold {COLOR_PINK}]\n"
+        f"[dim]Target:[/dim] {url}  |  [dim]Framework:[/dim] [bold {COLOR_BLUE}]{target.upper()}[/bold {COLOR_BLUE}]",
+        border_style=COLOR_PINK,
+    ))
+
+    progress = Progress(
+        SpinnerColumn(spinner_name="dots", style=COLOR_PINK),
+        BarColumn(bar_width=32, style=COLOR_PINK_DIM, complete_style=COLOR_PINK, finished_style=f"bold {COLOR_PINK}"),
+        TextColumn(f"[bold {COLOR_PINK}]{{task.percentage:>3.0f}}%[/bold {COLOR_PINK}]"),
+        TimeElapsedColumn(),
+        TextColumn(f"[bold {COLOR_PINK}]{{task.fields[eta]}}[/bold {COLOR_PINK}]"),
+        TextColumn(f"[bold {COLOR_BLUE}]{{task.fields[layer]}}[/bold {COLOR_BLUE}] [white]{{task.fields[op]}}[/white]"),
+        console=console,
+    )
+
+    with progress:
+        task = progress.add_task(
+            "Synthesizing",
+            total=100,
+            eta="Estimating...",
+            layer="[Init]",
+            op="Analyzing target UI...",
+        )
+
+        def on_progress(step: str, pct: float, msg: str, snapshot=None):
+            if snapshot:
+                progress.update(
+                    task,
+                    completed=int(snapshot.percent_done),
+                    eta=snapshot.eta_formatted,
+                    layer=f"[{snapshot.active_layer.split(':')[0]}]",
+                    op=snapshot.current_operation,
+                )
+            else:
+                progress.update(
+                    task,
+                    completed=int(pct * 100),
+                    eta="",
+                    layer=f"[{step}]",
+                    op=msg,
+                )
+
+        result = asyncio.run(run_clone(url, cfg, on_progress))
+
+    _print_result(result)
+
+
 @app.command("config")
 def show_config(
     config_file: Optional[Path] = typer.Option(None, "--config", "-c"),
@@ -423,6 +499,8 @@ def show_config(
     table.add_column("Value", style="white")
 
     table.add_row("Pre-Flight Layer (-1)", str(cfg.preflight.enabled))
+    table.add_row("UI-to-Prompt (Layer 5)", str(cfg.prompt_gen.enabled))
+    table.add_row("Prompt Target Framework", cfg.prompt_gen.target.value)
     table.add_row("Browser Engine", cfg.browser.primary_engine.value)
     table.add_row("Headless Mode", str(cfg.browser.headless))
     table.add_row("Image Storage", cfg.storage.images.value)
@@ -481,7 +559,21 @@ def _print_result(result) -> None:
             stack = ", ".join(pf.get("detected_frameworks", [])) or "Vanilla"
             table.add_row("Pre-Flight WAF Profile", f"{waf} | Stack: {stack}")
 
+        if result.prompt_path:
+            table.add_row("Master AI Prompt", f"[bold {COLOR_BLUE}]{result.prompt_path}[/bold {COLOR_BLUE}]")
+            if result.prompt_summary:
+                table.add_row("Prompt Architecture", str(result.prompt_summary))
+
         console.print(table)
+
+        if result.prompt_path and Path(result.prompt_path).exists():
+            console.print(Panel(
+                f"[bold {COLOR_BLUE}]🚀 Master AI Prompt Ready![/bold {COLOR_BLUE}]\n"
+                f"[white]Path:[/white] [bold {COLOR_PINK}]{result.prompt_path}[/bold {COLOR_PINK}]\n\n"
+                f"[dim]Copy the contents of [/dim][bold {COLOR_PINK}]PROMPT.md[/bold {COLOR_PINK}][dim] and paste into Claude 3.7 Sonnet, Cursor, v0.dev, or Lovable to build the exact frontend![/dim]",
+                border_style=COLOR_PINK,
+                title=f"[bold {COLOR_PINK}]Layer 5: UI-to-Prompt Synthesizer[/bold {COLOR_PINK}]",
+            ))
     else:
         console.print(Panel(
             f"[red]Clone failed:[/red]\n{result.error}",
