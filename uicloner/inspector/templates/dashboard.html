@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scrui Inspector — UI Telemetry & Visual Diff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #00a2ff;
+      --pink: #ff2a85;
+      --pink-glow: rgba(255, 42, 133, 0.3);
+      --blue-glow: rgba(0, 162, 255, 0.3);
+      --bg-dark: #07090e;
+      --bg-card: #0d121d;
+      --bg-card-hover: #131a29;
+      --border: #1b2438;
+      --border-accent: #2e3b59;
+      --text: #e2e8f0;
+      --text-muted: #8492a6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--blue);
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px var(--blue-glow);
+    }
+    .tagline {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--pink);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .metrics {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+    .badge {
+      padding: 0.25rem 0.65rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .badge-waf { border-color: var(--blue); color: var(--blue); }
+    .badge-score { border-color: var(--pink); color: var(--pink); font-weight: 700; }
+
+    /* Nav Tabs */
+    .tabs-nav {
+      background: #0a0e17;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      padding: 0 2rem;
+      gap: 1.5rem;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.85rem 0.25rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--pink);
+    }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--pink);
+      box-shadow: 0 0 10px var(--pink);
+    }
+
+    /* Container */
+    main {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Preview Panel */
+    .preview-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      background: var(--bg-card);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .viewport-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-vp {
+      background: #141b2a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+    }
+    .btn-vp.active {
+      background: var(--blue);
+      color: #000;
+      font-weight: 700;
+      border-color: var(--blue);
+    }
+    .iframe-wrapper {
+      background: #000;
+      border: 1px solid var(--border-accent);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    iframe {
+      width: 100%;
+      height: 820px;
+      border: none;
+      background: #fff;
+      transition: width 0.3s ease;
+    }
+
+    /* Tokens Grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      color: var(--blue);
+      margin-bottom: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+    .swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #141c2c;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .swatch-box {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* Prompt Markdown View */
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .btn-copy {
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--pink-glow);
+      transition: transform 0.1s ease;
+    }
+    .btn-copy:active { transform: scale(0.97); }
+    pre {
+      background: #090d16;
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      max-height: 750px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="logo-badge">SCRUI</span>
+      <span class="tagline">Visual Inspector v2.5</span>
+    </div>
+    <div class="metrics">
+      <span class="badge" id="host-badge">Loading...</span>
+      <span class="badge badge-waf" id="waf-badge">WAF: Probe</span>
+      <span class="badge badge-score" id="score-badge">FIDELITY: 96.4%</span>
+    </div>
+  </header>
+
+  <nav class="tabs-nav">
+    <button class="tab-btn active" onclick="switchTab('preview')">👁️ Live Preview</button>
+    <button class="tab-btn" onclick="switchTab('tokens')">🎨 Design Tokens (DTCG)</button>
+    <button class="tab-btn" onclick="switchTab('components')">🧩 Component AST</button>
+    <button class="tab-btn" onclick="switchTab('prompt')">🔮 Master AI Prompt</button>
+    <button class="tab-btn" onclick="switchTab('telemetry')">⚡ Pre-Flight & Network</button>
+  </nav>
+
+  <main>
+    <!-- TAB 1: Preview -->
+    <section id="tab-preview" class="tab-content active">
+      <div class="preview-toolbar">
+        <div class="viewport-controls">
+          <button class="btn-vp active" onclick="setViewport('100%')">Desktop (FHD)</button>
+          <button class="btn-vp" onclick="setViewport('820px')">Tablet (820px)</button>
+          <button class="btn-vp" onclick="setViewport('390px')">Mobile (390px)</button>
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-muted);">
+          Endpoint: <span style="color: var(--blue);">/preview</span>
+        </div>
+      </div>
+      <div class="iframe-wrapper">
+        <iframe id="preview-iframe" src="/preview"></iframe>
+      </div>
+    </section>
+
+    <!-- TAB 2: Tokens -->
+    <section id="tab-tokens" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h3>Palette Swatches</h3>
+          <div class="swatches" id="swatches-container"></div>
+        </div>
+        <div class="card">
+          <h3>W3C DTCG Tokens Spec</h3>
+          <pre><code id="tokens-json-view">Loading tokens...</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Components -->
+    <section id="tab-components" class="tab-content">
+      <div class="card">
+        <h3>Extracted Component Interfaces</h3>
+        <pre><code id="components-schema-view">Loading schema...</code></pre>
+      </div>
+    </section>
+
+    <!-- TAB 4: Prompt -->
+    <section id="tab-prompt" class="tab-content">
+      <div class="prompt-header">
+        <h2 style="font-size: 1.2rem; color: var(--pink);">Master Prompt (PROMPT.md)</h2>
+        <button class="btn-copy" onclick="copyPrompt()">📋 Copy Prompt to Clipboard</button>
+      </div>
+      <pre><code id="prompt-markdown-view">Loading prompt...</code></pre>
+    </section>
+
+    <!-- TAB 5: Telemetry -->
+    <section id="tab-telemetry" class="tab-content">
+      <div class="card">
+        <h3>Pre-Flight Profile & Network</h3>
+        <pre><code id="preflight-json-view">Loading telemetry...</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let apiData = null;
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    function setViewport(width) {
+      document.querySelectorAll('.btn-vp').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('preview-iframe').style.width = width;
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/data');
+        apiData = await res.json();
+        renderData(apiData);
+      } catch (e) {
+        console.error('Failed to load API data:', e);
+      }
+    }
+
+    function renderData(d) {
+      if (d.manifest) {
+        document.getElementById('host-badge').innerText = d.manifest.target_url || 'Target';
+        if (d.manifest.fidelity_score) {
+          document.getElementById('score-badge').innerText = 'FIDELITY: ' + d.manifest.fidelity_score.toFixed(1) + '%';
+        }
+      }
+      if (d.preflight && d.preflight.target_profile) {
+        document.getElementById('waf-badge').innerText = 'WAF: ' + (d.preflight.target_profile.cdn_waf || 'None');
+        document.getElementById('preflight-json-view').innerText = JSON.stringify(d.preflight, null, 2);
+      }
+      if (d.prompt) {
+        document.getElementById('prompt-markdown-view').innerText = d.prompt;
+      }
+      if (d.components_schema) {
+        document.getElementById('components-schema-view').innerText = JSON.stringify(d.components_schema, null, 2);
+      }
+      if (d.tokens) {
+        document.getElementById('tokens-json-view').innerText = JSON.stringify(d.tokens, null, 2);
+        renderSwatches(d.tokens);
+      }
+    }
+
+    function renderSwatches(tokens) {
+      const container = document.getElementById('swatches-container');
+      container.innerHTML = '';
+      if (tokens && tokens.color) {
+        for (const [key, val] of Object.entries(tokens.color)) {
+          const hex = val.$value || val.value;
+          if (hex && typeof hex === 'string') {
+            const div = document.createElement('div');
+            div.className = 'swatch';
+            div.innerHTML = `<span class="swatch-box" style="background:${hex};"></span><span>${key}: ${hex}</span>`;
+            div.onclick = () => { navigator.clipboard.writeText(hex); alert('Copied ' + hex); };
+            container.appendChild(div);
+          }
+        }
+      }
+    }
+
+    function copyPrompt() {
+      if (apiData && apiData.prompt) {
+        navigator.clipboard.writeText(apiData.prompt);
+        alert('Master Prompt copied to clipboard! Paste into Claude 3.7 Sonnet, Cursor, or v0.dev.');
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

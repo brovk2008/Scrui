@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.5.0] - 2026-09-22
+
+### Added
+- **AI Code Scaffolder (`scrui generate`)**:
+  - One-command autonomous code generation from any website into a complete, runnable Next.js 15 App Router codebase.
+  - Multi-provider LLM support: OpenRouter (Claude 3.7 Sonnet), Groq (Llama-3.3-70b), Gemini, and local Ollama.
+  - Generates `package.json`, `tsconfig.json`, `tailwind.config.ts`, `app/layout.tsx`, `app/page.tsx`, and modular components (`Navbar.tsx`, `Hero.tsx`, `Features.tsx`, `Footer.tsx`).
+- **Visual Diff & Telemetry Inspector Web UI (`scrui inspect`)**:
+  - Built-in local HTTP dashboard on `localhost:3888` featuring Cyberpunk aesthetics.
+  - Responsive viewport switcher (Desktop FHD, Tablet 820px, Mobile 390px).
+  - Visual comparison slider, interactive token palette swatches, and DTCG schema viewer.
+  - Section-by-section prompt copy button for instant AI workflow.
+- **Chrome Extension & Local Relay Server (`scrui listen`)**:
+  - Manifest V3 Chrome/Brave extension (`extension/`) for 1-click captures of authenticated dashboards (Stripe, Notion, Jira).
+  - Local HTTP daemon on port 9222 accepting DOM/CSS dumps and executing Scrui extraction instantly.
+- **Semantic Lucide React & Vector Icon Classifier**:
+  - Vector signature and attribute classifier matching raw SVG paths to clean Lucide React component imports (`Search`, `Menu`, `ChevronRight`, `Github`, etc.).
+  - Reduces prompt token consumption by 35-45% and eliminates 500-line SVG path blobs.
+- **W3C DTCG & Figma Tokens Studio Exporter**:
+  - Formats extracted tokens into official W3C Design Tokens Community Group specification (`tokens.json`).
+  - Exports `figma_tokens.json` for 1-click import into Figma via Tokens Studio plugin.
+- **Multi-Device Responsive Viewport Matrix**:
+  - Dynamic breakpoint analysis (Mobile 390px, Tablet 820px, Desktop 1920px).
+  - Detects mobile hamburger triggers, collapsible drawers, and responsive CSS grid shifts.
+- **Universal AI Agent Skill (`skills/scrui/SKILL.md`)**:
+  - Pre-built autonomous agent skill installed globally and locally for Claude Code, Cursor, Antigravity, and OpenAI agents.
+
 ## [2.0.0] - 2026-09-22
 
 ### Added

@@ -478,6 +478,102 @@ def prompt_site(
     _print_result(result)
 
 
+@app.command("generate")
+def generate_project(
+    url: str = typer.Argument(..., help="Target URL to scaffold into an active codebase"),
+    out: Path = typer.Option(Path("./scaffolded_app"), "--out", "-o", help="Target output directory for the scaffolded project"),
+    provider: str = typer.Option("openrouter", "--provider", "-p", help="LLM inference provider: openrouter/groq/gemini/ollama"),
+    target: str = typer.Option("nextjs", "--target", "-t", help="Target framework: nextjs/react/vue/svelte"),
+    config_file: Optional[Path] = typer.Option(None, "--config", "-c", help="Config YAML path"),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose logging"),
+):
+    """[bold #ff2a85]Scaffold a complete, runnable Next.js 15 project directly from a website UI.[/bold #ff2a85]"""
+    print_banner()
+    _setup_logging(verbose)
+    from uicloner.config import UICloneConfig, PromptTarget
+    from uicloner.orchestrator import run_clone
+    from uicloner.generator.scaffolder import ProjectScaffolder
+    from uicloner.generator.llm_client import LLMClient
+    from uicloner.layers.layer5_prompt import generate_ui_prompt
+
+    cfg = UICloneConfig.from_yaml(config_file) if config_file else UICloneConfig.default()
+    cfg.prompt_gen.enabled = True
+    try:
+        cfg.prompt_gen.target = PromptTarget(target.lower())
+    except ValueError:
+        cfg.prompt_gen.target = PromptTarget.NEXTJS
+
+    console.print(f"[bold {COLOR_BLUE}]⚡ Step 1/2: Extracting UI & Telemetry from {url}...[/bold {COLOR_BLUE}]")
+    result = asyncio.run(run_clone(url, cfg))
+
+    if not result.success:
+        console.print(f"[red]Scrui extraction failed: {result.error}[/red]")
+        raise typer.Exit(1)
+
+    console.print(f"\n[bold {COLOR_PINK}]🚀 Step 2/2: Scaffolding project into {out}...[/bold {COLOR_PINK}]")
+    
+    # Load or synthesize prompt bundle
+    bundle = generate_ui_prompt(
+        url=url,
+        config=cfg,
+        dom_data={},
+    )
+    # Read generated schema if written
+    schema_path = result.output_dir / "data_structure" / "prompt" / "components_schema.json"
+    if schema_path.exists():
+        try:
+            with open(schema_path, "r", encoding="utf-8") as f:
+                bundle.components_schema = json.load(f)
+        except Exception:
+            pass
+
+    scaffolder = ProjectScaffolder(out, bundle)
+    files = scaffolder.scaffold()
+
+    console.print(f"[bold green]✅ Project successfully scaffolded at {out.resolve()}![/bold green]")
+    table = Table(title="Generated Files", border_style=COLOR_PINK, header_style=f"bold {COLOR_PINK}")
+    table.add_column("File", style=COLOR_BLUE)
+    table.add_column("Path", style="white")
+    for name, p in files.items():
+        table.add_row(name, str(p))
+    console.print(table)
+
+    console.print(Panel(
+        f"[bold white]Next Steps to Run Your Cloned App:[/bold white]\n\n"
+        f"[bold {COLOR_PINK}]cd {out}[/bold {COLOR_PINK}]\n"
+        f"[bold {COLOR_PINK}]npm install[/bold {COLOR_PINK}]\n"
+        f"[bold {COLOR_PINK}]npm run dev[/bold {COLOR_PINK}]\n\n"
+        f"[dim]Runs Next.js 15 on http://localhost:3000[/dim]",
+        border_style=COLOR_BLUE,
+        title=f"[bold {COLOR_PINK}]🎉 Ready to Launch[/bold {COLOR_PINK}]",
+    ))
+
+
+@app.command("inspect")
+def inspect_clone(
+    target_dir: Optional[Path] = typer.Argument(None, help="Clone directory to inspect (defaults to latest in ./clones)"),
+    port: int = typer.Option(3888, "--port", "-p", help="Port for the inspector web dashboard"),
+    no_open: bool = typer.Option(False, "--no-open", help="Do not automatically open the browser"),
+):
+    """[bold #ff2a85]Launch the local visual diff & telemetry web inspector on localhost:3888.[/bold #ff2a85]"""
+    print_banner()
+    from uicloner.inspector.server import launch_inspector
+    launch_inspector(target_dir, port=port, open_browser=not no_open)
+
+
+@app.command("listen")
+def listen_relay(
+    port: int = typer.Option(9222, "--port", "-p", help="Port for local extension relay"),
+    config_file: Optional[Path] = typer.Option(None, "--config", "-c", help="Config YAML path"),
+):
+    """[bold #ff2a85]Start local relay server for 1-click captures from the Scrui Chrome Extension.[/bold #ff2a85]"""
+    print_banner()
+    from uicloner.config import UICloneConfig
+    from uicloner.relay.server import start_relay_server
+    cfg = UICloneConfig.from_yaml(config_file) if config_file else UICloneConfig.default()
+    start_relay_server(cfg, port=port)
+
+
 @app.command("config")
 def show_config(
     config_file: Optional[Path] = typer.Option(None, "--config", "-c"),

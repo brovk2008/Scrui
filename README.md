@@ -33,10 +33,12 @@
 | **Layer 3: Asset & Deduplication** | SHA-256 asset content-hash deduplication + searchable SQLite index (`assets.db`) |
 | **Layer 3: JS Deobfuscation** | webcrack debundling + Qwen2.5-Coder identifier renaming |
 | **Layer 4: Assembly & Auto-Correct**| Self-contained single-file HTML clone + closed-loop visual auto-correction engine |
-| **Layer 5: UI-to-Prompt Synthesizer**| **The Ultimate Feature**: Compiles the entire UI into an exact Master AI Prompt (`PROMPT.md`) for Claude 3.7 Sonnet, Cursor, v0.dev, and Lovable |
-| **CAPTCHA Solving** | 2captcha v2 API — reCAPTCHA v2/v3, hCaptcha, Turnstile, DataDome slider |
-| **Site Crawler & Sitemap** | Async BFS crawler with robots.txt, sitemap.xml & interactive link hierarchy graph |
-| **CLI & TUI Experience** | Retro 8-bit electric blue logo (`#00a2ff`), cyberpunk pink UI (`#ff2a85`), and real-time operational telemetry |
+| **Layer 5: UI-to-Prompt Synthesizer**| **The Ultimate Feature**: Compiles the entire UI into an exact Master AI Prompt (`PROMPT.md`) with Lucide vector matching |
+| **AI Code Scaffolder (`generate`)** | Autonomous 1-command generator: compiles UI into a runnable Next.js 15 App Router project on disk |
+| **Visual Inspector (`inspect`)** | Built-in local web dashboard on `localhost:3888` with responsive viewports, live diff slider & token swatches |
+| **Chrome Extension & Relay (`listen`)**| 1-click tab extraction for authenticated dashboards (Stripe, Notion, Jira) bypassing bot hurdles |
+| **Design Token Exporter** | Exports W3C DTCG `tokens.json` & Figma Tokens Studio `figma_tokens.json` |
+| **Universal AI Agent Skill** | Pre-built `SKILL.md` allowing Cursor, Claude Code, Antigravity, and OpenAI agents to run Scrui autonomously |
 
 ---
 
@@ -210,17 +212,37 @@ Before launching the browser, **Layer -1** analyzes the target and displays a pr
 scrui prompt https://stripe.com --target nextjs
 ```
 
-### 3. Dismantle UI Elements & Tokens
+### 3. Scaffold a Complete, Runnable Next.js 15 Project Directly to Disk
+```bash
+scrui generate https://stripe.com --out ./my-stripe-clone --target nextjs
+
+# Run your new frontend:
+cd my-stripe-clone && npm install && npm run dev
+```
+
+### 4. Launch the Visual Diff & Telemetry Web Inspector
+```bash
+scrui inspect
+# Opens http://127.0.0.1:3888 with split-screen slider, token swatches & prompt copy
+```
+
+### 5. Listen for Authenticated Captures via the Scrui Chrome Extension
+```bash
+scrui listen
+# Open any tab in Chrome/Brave, click the Scrui extension, and click "Scrui This Tab"
+```
+
+### 6. Dismantle UI Elements & Tokens
 ```bash
 scrui dismantle https://example.com
 ```
 
-### 4. Crawl Site & Generate Comprehensive Sitemap
+### 7. Crawl Site & Generate Comprehensive Sitemap
 ```bash
 scrui crawl https://example.com --max-pages 50 --depth 3
 ```
 
-### 5. Interactive Terminal UI (TUI)
+### 8. Interactive Terminal UI (TUI)
 ```bash
 scrui tui
 ```
@@ -308,6 +330,34 @@ validation:
                   ├── preflight.json (Edge & WAF telemetry)
                   └── assets.db (Searchable SQLite index)
 ```
+
+---
+
+## 🧩 Chrome Extension (1-Click Authenticated Capture)
+
+For authenticated dashboards (Stripe, Notion, Jira, AWS Console) or sites protected by advanced enterprise Cloudflare Turnstile:
+
+1. Open Chrome/Brave and navigate to `chrome://extensions/`.
+2. Toggle on **Developer mode** (top right).
+3. Click **Load unpacked** and select the [`extension/`](./extension) directory in this repo.
+4. In your terminal, start the relay daemon:
+   ```bash
+   scrui listen
+   ```
+5. Navigate to any tab in your browser, click the **Scrui** extension icon, and hit **⚡ Scrui This Tab**.
+6. The entire live DOM, computed styles, and SVG vectors are instantly streamed to your local Scrui engine, creating the clone and `PROMPT.md` automatically!
+
+---
+
+## 🧠 Universal AI Agent Skill (`SKILL.md`)
+
+Scrui includes an official agent skill definition at [`skills/scrui/SKILL.md`](./skills/scrui/SKILL.md).
+
+Any modern AI coding agent (Cursor, Claude Code, Antigravity, Windsurf, OpenAI Operator) can autonomously operate Scrui to:
+- Clone reference websites when asked to build matching UIs.
+- Inspect `components_schema.json` to write typed TypeScript components.
+- Read verbatim headlines, copy, and button variants from `PROMPT.md`.
+- Read exact brand colors and radius tokens from `tokens.json`.
 
 ---
 

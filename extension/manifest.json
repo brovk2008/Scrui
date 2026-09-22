@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Scrui — 1-Click UI Capture",
+  "version": "2.5.0",
+  "description": "1-click extraction of authenticated dashboards, private web pages, and complex frontends directly into Scrui.",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:9222/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Scrui This Page"
+  }
+}

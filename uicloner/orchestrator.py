@@ -363,6 +363,14 @@ async def run_clone(
             })
             serializer.write_json("landmarks", [asdict(lm) for lm in dismantle_report.landmarks])
 
+            # Save W3C DTCG & Figma Tokens
+            if dismantle_report.design_system:
+                try:
+                    from uicloner.analyzer.token_exporter import save_tokens_bundle
+                    save_tokens_bundle(dismantle_report.design_system, serializer.data_dir)
+                except Exception as ex:
+                    logger.debug(f"Failed to export DTCG tokens: {ex}")
+
             # SQLite Indexing
             serializer.index_elements_sqlite(dismantle_report.elements)
 

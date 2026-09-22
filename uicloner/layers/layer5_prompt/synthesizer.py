@@ -6,6 +6,7 @@ Technical Specification designed for Claude 3.7 Sonnet, GPT-4o, Cursor, v0.dev, 
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field, asdict
 from typing import Any, Optional
 from urllib.parse import urlparse
@@ -15,6 +16,7 @@ from uicloner.layers.layer5_prompt.ast_reducer import reduce_dom_to_components, 
 from uicloner.layers.layer5_prompt.token_compiler import compile_design_tokens, DesignTokenSpec
 from uicloner.layers.layer5_prompt.state_compiler import compile_state_machine, StateMachineSpec
 from uicloner.layers.layer5_prompt.motion_compiler import compile_motion_specs, MotionSpec
+from uicloner.layers.layer5_prompt.icon_matcher import IconMatcher
 
 
 @dataclass
@@ -60,33 +62,24 @@ class UIPromptSynthesizer:
         state_spec = compile_state_machine(behavior_report, dom_data.get("events"))
         motion_spec = compile_motion_specs(anim_data, behavior_report)
 
+        # 1d. Match icons and vectors to standard Lucide React components
+        from uicloner.layers.layer5_prompt.icon_matcher import IconMatcher
+        icon_matcher = IconMatcher(target_library="lucide-react")
+        svg_matches = re.findall(r"(<svg[^>]*>.*?</svg>)", outer_html, re.DOTALL | re.IGNORECASE)
+        matched_icons_list = []
+        for svg in svg_matches[:50]:
+            match = icon_matcher.match_svg(svg)
+            if match:
+                matched_icons_list.append({"name": match.name, "library": match.library, "jsx": match.jsx})
+
         # 2. Build Schema Dictionary
         components_schema = {
             "source_url": url,
             "target_framework": self.target.value,
-            "design_tokens": {
-                "primary": tokens.primary_color,
-                "secondary": tokens.secondary_color,
-                "background": tokens.background_color,
-                "surface": tokens.surface_color,
-                "text": tokens.text_color,
-                "font_sans": tokens.font_sans,
-                "font_heading": tokens.font_heading,
-                "radius": tokens.border_radius,
-            },
-            "sections": [
-                {
-                    "id": s.section_id,
-                    "name": s.section_name,
-                    "headline": s.headline,
-                    "subheadline": s.subheadline,
-                    "layout": s.layout,
-                    "components": [c.name for c in s.components],
-                    "copy_sample": s.raw_copy[:5],
-                }
-                for s in sections
-            ],
-            "reusable_components": [
+            "host": host,
+            "design_tokens": asdict(tokens),
+            "sections": [asdict(s) for s in sections],
+            "components": [
                 {
                     "name": c.name,
                     "category": c.category,
@@ -97,13 +90,18 @@ class UIPromptSynthesizer:
                 for c in components
             ],
             "state_hooks": [asdict(h) for h in state_spec.contracts],
+            "icons": {
+                "import_header": icon_matcher.get_import_header(),
+                "matched_count": len(matched_icons_list),
+                "icons": matched_icons_list,
+            },
         }
 
         # 3. Assemble Technical Specification (SPEC.md)
-        technical_spec = self._build_technical_spec(host, url, sections, components, tokens, state_spec, motion_spec)
+        technical_spec = self._build_technical_spec(host, url, sections, components, tokens, state_spec, motion_spec, icon_matcher)
 
         # 4. Assemble Master Prompt (PROMPT.md) based on Target
-        master_prompt = self._build_master_prompt(host, url, sections, components, tokens, state_spec, motion_spec)
+        master_prompt = self._build_master_prompt(host, url, sections, components, tokens, state_spec, motion_spec, icon_matcher)
 
         summary = (
             f"Synthesized {len(sections)} semantic sections, {len(components)} reusable components, "
@@ -127,9 +125,20 @@ class UIPromptSynthesizer:
         tokens: DesignTokenSpec,
         state_spec: StateMachineSpec,
         motion_spec: MotionSpec,
+        icon_matcher: Optional[IconMatcher] = None,
     ) -> str:
         """Build the master copy-paste markdown prompt."""
         framework_instructions = self._get_framework_instructions()
+
+        icon_import_block = ""
+        if icon_matcher and icon_matcher.imported_icons:
+            icon_import_block = f"""
+4. **Icons & Vector Assets (Lucide React)**:
+Do NOT paste massive inline SVG blobs. Use clean Lucide React component imports:
+```tsx
+{icon_matcher.get_import_header()}
+```
+"""
 
         # Build Section Checklist
         sections_md = ""
@@ -187,7 +196,7 @@ class UIPromptSynthesizer:
 ```tsx
 {motion_spec.framer_motion_variants_snippet}
 ```
-
+{icon_import_block}
 ---
 
 ## 🧩 Section-by-Section Implementation Blueprint
@@ -233,8 +242,12 @@ Ensure the application is fully interactive and functional:
         tokens: DesignTokenSpec,
         state_spec: StateMachineSpec,
         motion_spec: MotionSpec,
+        icon_matcher: Optional[IconMatcher] = None,
     ) -> str:
         """Build the supporting SPEC.md technical reference."""
+        icons_spec = ""
+        if icon_matcher and icon_matcher.imported_icons:
+            icons_spec = f"\n---\n\n## 4. Vector & Icon Mappings\n`{icon_matcher.get_import_header()}`\n"
         return f"""# Technical Specification: {host}
 
 **Source URL**: {url}  
@@ -325,14 +338,16 @@ Ensure the application is fully interactive and functional:
 
 def generate_ui_prompt(
     url: str,
-    config: Any,
-    dom_data: dict,
+    config: Any = None,
+    dom_data: Optional[dict] = None,
     dismantle_report: Any = None,
     behavior_report: Any = None,
     anim_data: Optional[dict] = None,
     asset_records: Optional[dict] = None,
 ) -> PromptBundle:
     """Convenience function to synthesize a full prompt bundle."""
+    if dom_data is None:
+        dom_data = {}
     synthesizer = UIPromptSynthesizer(config)
     return synthesizer.synthesize(
         url=url,

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 280px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #090d16;
+      color: #e2e8f0;
+      padding: 16px;
+      margin: 0;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 16px;
+      color: #00a2ff;
+      letter-spacing: 1px;
+    }
+    .version {
+      font-size: 11px;
+      color: #ff2a85;
+      font-weight: 600;
+    }
+    .btn-capture {
+      width: 100%;
+      background: linear-gradient(135deg, #ff2a85, #d91b6e);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(255, 42, 133, 0.4);
+      transition: all 0.2s ease;
+    }
+    .btn-capture:hover {
+      background: #ff4798;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      min-height: 20px;
+    }
+    .relay-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      margin-top: 12px;
+      color: #64748b;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="logo">SCRUI</span>
+    <span class="version">v2.5 EXTENSION</span>
+  </div>
+
+  <button id="capture-btn" class="btn-capture">⚡ Scrui This Tab</button>
+  <div id="status" class="status">Ready to capture tab</div>
+
+  <div class="relay-indicator">
+    <span class="dot" id="relay-dot"></span>
+    <span id="relay-text">Relay: 127.0.0.1:9222</span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

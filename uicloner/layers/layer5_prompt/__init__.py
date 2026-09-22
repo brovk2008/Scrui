@@ -16,6 +16,7 @@ from uicloner.layers.layer5_prompt.ast_reducer import SemanticSection, Component
 from uicloner.layers.layer5_prompt.token_compiler import compile_design_tokens, DesignTokenSpec
 from uicloner.layers.layer5_prompt.state_compiler import compile_state_machine, StateMachineSpec
 from uicloner.layers.layer5_prompt.motion_compiler import compile_motion_specs, MotionSpec
+from uicloner.layers.layer5_prompt.icon_matcher import IconMatcher, MatchedIcon
 
 __all__ = [
     "UIPromptSynthesizer",
@@ -30,4 +31,6 @@ __all__ = [
     "StateMachineSpec",
     "compile_motion_specs",
     "MotionSpec",
+    "IconMatcher",
+    "MatchedIcon",
 ]
