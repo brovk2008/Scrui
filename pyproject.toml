@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uicloner"
+version = "2.0.0"
+description = "High-Fidelity UI Extraction & Cloning Engine"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Scrui / UI Cloner Authors"},
+]
+keywords = ["web-scraping", "ui-cloning", "browser-automation", "stealth"]
+
+dependencies = [
+    # Browser automation
+    "nodriver>=0.48",
+    "playwright>=1.48",
+    "patchright>=1.49",
+    "camoufox[geoip]>=0.4",
+    # TLS impersonation
+    "curl-cffi>=0.7",
+    # Async HTTP
+    "aiohttp>=3.10",
+    "aiofiles>=23.2",
+    # Data / config
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "pyyaml>=6.0",
+    # TUI
+    "textual>=0.85",
+    "rich>=13.9",
+    # Image processing
+    "Pillow>=11.0",
+    "numpy>=2.1",
+    # HuggingFace
+    "huggingface-hub>=0.26",
+    "requests>=2.32",
+    # CLI
+    "typer>=0.13",
+    # Fingerprinting
+    "browserforge>=1.2",
+    # Utilities
+    "python-slugify>=8.0",
+    "python-dateutil>=2.9",
+    "tqdm>=4.67",
+    "click>=8.1",
+]
+
+[project.optional-dependencies]
+local-llm = [
+    "transformers>=4.46",
+    "torch>=2.5",
+    "accelerate>=1.1",
+]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "black>=24.10",
+    "ruff>=0.7",
+]
+
+[project.scripts]
+uiclone = "uicloner.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["uicloner"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

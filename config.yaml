@@ -1,0 +1,180 @@
+# UI Cloner v2.0 — Configuration
+# Copy this file to your working directory as config.yaml and customize.
+# All values here can also be overridden via CLI flags or the TUI settings panel.
+
+browser:
+  # Primary engine: nodriver (best evasion), patchright, camoufox
+  primary_engine: nodriver
+  # Fallback chain if primary fails
+  fallback_chain:
+    - patchright
+    - camoufox
+  # false = headed mode (lower detection), true = headless
+  headless: false
+  max_concurrent_sessions: 5
+  session_timeout_seconds: 300
+  page_load_timeout_seconds: 60
+  network_idle_timeout_ms: 2000
+
+fingerprint:
+  enabled: true
+  # OS distribution (weights sum to 100)
+  os_distribution:
+    windows: 70
+    macos: 25
+    linux: 5
+  browser_distribution:
+    chrome: 80
+    firefox: 20
+  screen_min: [1280, 720]
+  screen_max: [2560, 1440]
+  locale:
+    - en-US
+    - en-GB
+
+evasion:
+  webdriver_patch: true
+  canvas_noise: true
+  # canvas_noise_seed: null  # null = unique random per session
+  webgl_spoof: true
+  webgl_renderer: "ANGLE (NVIDIA, NVIDIA GeForce RTX 3080 Direct3D11 vs_5_0 ps_5_0)"
+  webgl_vendor: "Google Inc. (NVIDIA)"
+  behavior_simulation: true
+  mouse_speed_ms_range: [150, 500]
+  webrtc_disabled: true
+  detect_honeypots: true
+
+network:
+  # TLS impersonation profile: chrome120, chrome124, chrome131, firefox120, safari18
+  tls_impersonate: chrome131
+  # HTTP version: 1, 2, or 3 (HTTP/3 requires curl_cffi 0.15+)
+  http_version: 3
+  # Proxy tier: none, residential, isp, datacenter
+  proxy_tier: none
+  # List of proxies: "host:port" or "host:port:username:password"
+  proxy_list: []
+  rotate_proxy_after_n_requests: 5
+  rate_limit_jitter_seconds: [2.0, 8.0]
+  request_timeout_seconds: 30
+  max_retries: 3
+  retry_backoff_base: 2.0
+
+extraction:
+  inline_assets: true
+  capture_shadow_dom: true
+  extract_animations: true
+  extract_event_listeners: true
+  record_temporal_mutations: true
+  capture_canvas: true
+  capture_webgl: true
+  extract_js: true
+  js_deobfuscate: true
+  # Idle wait strategy
+  wait_for_network_idle: true
+  extra_wait_ms: 500
+  # Scroll page to trigger lazy-loaded content
+  auto_scroll: true
+  scroll_pause_ms: 800
+  # Animation fidelity
+  inline_lottie: true
+  rebind_scroll_animations: true
+  capture_gsap_scroll_trigger: true
+
+crawler:
+  enabled: false
+  max_pages: 50
+  max_depth: 3
+  same_domain_only: true
+  respect_robots_txt: true
+  page_delay_seconds: 2.0
+  parse_sitemap_xml: true
+  prioritize_sitemap: true
+  screenshot_all_pages: true
+  max_concurrent: 2
+
+analysis:
+  enabled: true
+  detect_buttons: true
+  detect_forms: true
+  detect_navigation: true
+  detect_modals: true
+  detect_carousels: true
+  detect_accordions: true
+  detect_tabs: true
+  detect_tooltips: true
+  detect_dropdowns: true
+  run_accessibility_audit: true
+  extract_color_palette: true
+  extract_typography: true
+  extract_design_tokens: true
+
+storage:
+  # ─── How each asset type is stored ───────────────────────────────────────
+  #
+  # base64 — Embed as data URI in HTML and JSON records
+  # raw     — Save as actual files in site/assets/<category>/
+  # both    — Save files AND embed base64 in JSON data
+  # url     — Keep original external URLs (no downloading)
+  #
+  images: base64
+  fonts: base64
+  videos: raw
+  # stylesheets: inline or file
+  stylesheets: inline
+  # scripts: inline, file, or deobfuscated
+  scripts: deobfuscated
+  # Data output format: jsonl (streaming), json, or both
+  data_format: jsonl
+  # Maximum asset size to process (MB) — larger assets skipped
+  max_asset_size_mb: 50.0
+  compress_data: false
+  # Content-hash deduplication (SHA-256) — identical assets stored once
+  deduplicate_assets: true
+  # Build SQLite index in data_structure/assets.db
+  build_sqlite_index: true
+
+huggingface:
+  # Set HF_API_KEY environment variable or enter key in TUI settings
+  # api_key: "hf_..."
+  #
+  # Vision-Language Model for clone validation
+  vlm_model: "Qwen/Qwen2.5-VL-7B-Instruct"
+  # Code model for JS deobfuscation / WASM decompilation
+  code_model: "Qwen/Qwen2.5-Coder-7B-Instruct"
+  # false = use HuggingFace Inference API (cloud, no local GPU needed)
+  # true  = load models locally (requires CUDA GPU + 16GB+ VRAM)
+  use_local: false
+  inference_timeout: 120
+  max_new_tokens: 2048
+
+captcha:
+  enabled: false
+  # Set TWO_CAPTCHA_KEY environment variable or enter in TUI settings
+  # two_captcha_api_key: "your_key_here"
+  auto_detect: true
+  timeout_seconds: 120
+  poll_interval_seconds: 3.0
+  solve_recaptcha_v2: true
+  solve_recaptcha_v3: true
+  solve_hcaptcha: true
+  solve_turnstile: true
+  solve_image: true
+
+validation:
+  run_pixel_diff: true
+  run_vlm_check: false  # Set to true if HF API key is configured
+  fidelity_threshold_percent: 92.0
+  pixel_diff_threshold: 5  # 0-50 — pixels differing by more than this are flagged
+
+output:
+  # Base directory for all clones
+  base_dir: ./clones
+  # format: single_file_html, multi_file, or both
+  format: both
+  embed_rrweb_replay: true
+  minify_html: false
+  generate_fidelity_report: true
+  # Folder naming pattern
+  root_folder_prefix: "site_cloned_"
+  # Configurable structured data folder name (e.g. data_structure or data)
+  data_folder_name: "data_structure"
