@@ -121,8 +121,8 @@ Scrui is structured into 7 specialized pipeline layers:
 
 5. **Verify your installation:**
    ```bash
-   uiclone --help
-   uiclone config
+   scrui --help
+   scrui config
    ```
 
 ---
@@ -259,7 +259,7 @@ pytest tests/test_browser.py -k "nodriver"
 When contributing new features:
 1. Add corresponding test cases in `tests/`.
 2. Verify that existing tests pass without regressions.
-3. Verify that the CLI continues to execute cleanly: `uiclone --help`.
+3. Verify that the CLI continues to execute cleanly: `scrui --help`.
 
 ---
 

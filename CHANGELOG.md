@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Interactive state compiler synthesizes mined behaviors into type-safe React state hooks (`useState`, `useEffect`) and accessibility contracts.
   - Motion compiler translates CSS keyframes and WAAPI animations into declarative Framer Motion variants and scroll reveals.
   - Supports multiple target prompt profiles: Next.js 15 App Router (`nextjs`), v0.dev / Lovable (`v0`), Cursor / Windsurf (`cursor`), React 19 (`react`), Vue 3 (`vue`), SvelteKit (`svelte`).
-  - Dedicated CLI command `uiclone prompt <url> --target <target>` and `--prompt` flag for `uiclone clone`.
+  - Dedicated CLI command `scrui prompt <url> --target <target>` and `--prompt` flag for `scrui clone`.
 - **Community Standards**:
   - Contributor Covenant v2.1 `CODE_OF_CONDUCT.md`.
   - Responsible disclosure `SECURITY.md`.

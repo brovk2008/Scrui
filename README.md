@@ -65,24 +65,24 @@ Layer 5 turns Scrui into a **frontend compiler for AI models**. Instead of raw H
 
 ```bash
 # 1. Synthesize a Next.js 15 App Router + Tailwind Master Prompt
-uiclone prompt https://stripe.com
+scrui prompt https://stripe.com
 
 # 2. Synthesize a v0.dev / Lovable component prompt
-uiclone prompt https://linear.app --target v0
+scrui prompt https://linear.app --target v0
 
 # 3. Synthesize Cursor / Windsurf rules (.cursorrules + task list)
-uiclone prompt https://airbnb.com --target cursor
+scrui prompt https://airbnb.com --target cursor
 
 # 4. Synthesize for React 19 or Vue 3
-uiclone prompt https://supabase.com --target react
-uiclone prompt https://vuejs.org --target vue
+scrui prompt https://supabase.com --target react
+scrui prompt https://vuejs.org --target vue
 ```
 
 #### Method 2: Enable during full cloning
 
 ```bash
 # Clone the site AND generate the Master Prompt in one pass
-uiclone clone https://example.com --prompt --prompt-target nextjs
+scrui clone https://example.com --prompt --prompt-target nextjs
 ```
 
 #### Method 3: In `config.yaml`
@@ -124,7 +124,7 @@ data_structure/
 
 1. Run:
    ```bash
-   uiclone prompt https://stripe.com
+   scrui prompt https://stripe.com
    ```
 2. Open `clones/site_cloned_stripe_.../data_structure/prompt/PROMPT.md`.
 3. Copy the entire file contents and paste them directly into **Claude 3.7 Sonnet**, **GPT-4o**, **Cursor**, or **v0.dev**.
@@ -195,7 +195,7 @@ When running Scrui in CMD or PowerShell, the interface displays the **8-bit Elec
 
 ### 1. Clone a Website (with Layer -1 Telemetry)
 ```bash
-uiclone clone https://stripe.com
+scrui clone https://stripe.com
 ```
 
 Before launching the browser, **Layer -1** analyzes the target and displays a pre-flight profile:
@@ -207,22 +207,22 @@ Before launching the browser, **Layer -1** analyzes the target and displays a pr
 
 ### 2. Synthesize UI to Master AI Prompt
 ```bash
-uiclone prompt https://stripe.com --target nextjs
+scrui prompt https://stripe.com --target nextjs
 ```
 
 ### 3. Dismantle UI Elements & Tokens
 ```bash
-uiclone dismantle https://example.com
+scrui dismantle https://example.com
 ```
 
 ### 4. Crawl Site & Generate Comprehensive Sitemap
 ```bash
-uiclone crawl https://example.com --max-pages 50 --depth 3
+scrui crawl https://example.com --max-pages 50 --depth 3
 ```
 
 ### 5. Interactive Terminal UI (TUI)
 ```bash
-uiclone tui
+scrui tui
 ```
 
 ---

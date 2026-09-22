@@ -56,7 +56,7 @@ body:
       label: Steps to Reproduce
       description: How can maintainers reproduce the issue?
       placeholder: |
-        1. Run `uiclone clone https://example.com`
+        1. Run `scrui clone https://example.com`
         2. Wait for Layer 2 DOM extraction
         3. See error traceback
     validations:

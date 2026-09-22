@@ -1,8 +1,8 @@
 """
-UI Cloner CLI — Typer-based command-line interface.
-Brand: Scrui (High-Fidelity Predictive UI Extraction & Cloning Engine v2.0)
+Scrui CLI — Typer-based command-line interface.
+Brand: Scrui (High-Fidelity Predictive UI Extraction, Reverse-Engineering & AI Prompt Engine v2.0)
 Theme: 8-bit Electric Blue Logo + Neon Pink UI Cyber Aesthetic
-Entry point: `uiclone`
+Entry point: `scrui` (alias: `uiclone`)
 """
 from __future__ import annotations
 
@@ -43,8 +43,8 @@ SCRUI_8BIT_BANNER = r"""
 """
 
 app = typer.Typer(
-    name="uiclone",
-    help="Scrui — High-Fidelity Predictive UI Extraction & Cloning Engine v2.0",
+    name="scrui",
+    help="Scrui — High-Fidelity Predictive UI Extraction, Reverse-Engineering & AI Prompt Engine v2.0",
     add_completion=False,
     rich_markup_mode="rich",
 )
