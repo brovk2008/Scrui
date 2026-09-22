@@ -1,0 +1,53 @@
+name: "💡 Feature Request"
+description: "Suggest an idea or enhancement for Scrui"
+title: "[FEATURE]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make Scrui more powerful or faithful in cloning web interfaces? We'd love to hear it!
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Target Layer
+      description: Which part of Scrui does this feature target?
+      options:
+        - "Layer -1: Pre-Flight Profiler & Telemetry Oracle"
+        - "Layer 0: Anti-Bot Evasion & TLS Fingerprinting"
+        - "Layer 1: Stealth Browser Orchestration"
+        - "Layer 2: DOM, Shadow DOM & Event Extraction"
+        - "Layer 2.5: UI Dismantler & Design Tokens"
+        - "Layer 2.6: Behavioral State Explorer"
+        - "Layer 3: Asset Pipeline, Deduplication & Deobfuscation"
+        - "Layer 4: Assembly & Closed-Loop Auto-Correction"
+        - "CLI / TUI Experience"
+        - "Other / General"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: Is your feature request related to a problem or limitation?
+      placeholder: "I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any alternative solutions or features you've considered?
+    validations:
+      required: false

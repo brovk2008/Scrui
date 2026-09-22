@@ -211,6 +211,18 @@ validation:
 
 ---
 
+## 🤝 Community & Contributing
+
+We welcome contributions to Scrui! Please review our community guidelines:
+
+- **[Contributing Guide](CONTRIBUTING.md)** — Development setup, architecture guides, and PR checklist.
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** — Contributor Covenant v2.1 standards.
+- **[Security Policy](SECURITY.md)** — Responsible vulnerability disclosure instructions.
+- **[Support Guide](SUPPORT.md)** — Getting help, FAQs, and discussions.
+- **[Changelog](CHANGELOG.md)** — Release history and feature breakdown.
+
+---
+
 ## 📄 License
 
 This project is licensed under the **Apache License 2.0** — see the [LICENSE](LICENSE) file for details.

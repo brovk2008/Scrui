@@ -1,0 +1,80 @@
+name: "🐛 Bug Report"
+description: "File a bug report or unexpected behavior in Scrui"
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please provide detailed information so we can investigate and reproduce it.
+
+  - type: input
+    id: target_url
+    attributes:
+      label: Target URL
+      description: What URL were you attempting to clone or analyze?
+      placeholder: https://example.com
+    validations:
+      required: false
+
+  - type: dropdown
+    id: browser_engine
+    attributes:
+      label: Browser Engine Used
+      options:
+        - nodriver (default)
+        - patchright
+        - camoufox
+        - None / Pre-flight only
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows 11 / 10
+        - macOS
+        - Ubuntu / Debian
+        - Other Linux
+    validations:
+      required: true
+
+  - type: textarea
+    id: preflight_output
+    attributes:
+      label: Pre-Flight Profile (Layer -1)
+      description: If available, paste the Pre-Flight output or data_structure/preflight.json snippet.
+      placeholder: "Target Host: example.com | WAF: Cloudflare | Stack: Next.js, React"
+    validations:
+      required: false
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can maintainers reproduce the issue?
+      placeholder: |
+        1. Run `uiclone clone https://example.com`
+        2. Wait for Layer 2 DOM extraction
+        3. See error traceback
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs / Traceback
+      description: Please paste relevant terminal output or traceback.
+      render: shell
+    validations:
+      required: false

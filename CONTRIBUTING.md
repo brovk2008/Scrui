@@ -1,6 +1,6 @@
-# Contributing to UI Cloner v2.0
+# Contributing to Scrui v2.0
 
-Thank you for your interest in contributing to **UI Cloner** — the production-grade, high-fidelity reverse engineering, DOM snapshotting, and stealth UI cloning engine.
+Thank you for your interest in contributing to **Scrui** — the production-grade, high-fidelity reverse engineering, DOM snapshotting, predictive telemetry, and stealth UI cloning engine.
 
 This document provides complete guidelines for setting up your development environment, understanding the architecture, extending layers, writing tests, and submitting pull requests.
 
@@ -13,7 +13,8 @@ This document provides complete guidelines for setting up your development envir
 3. [Development Environment Setup](#development-environment-setup)
 4. [Project Structure](#project-structure)
 5. [Core Design Principles](#core-design-principles)
-6. [How to Extend UI Cloner](#how-to-extend-ui-cloner)
+6. [How to Extend Scrui](#how-to-extend-scrui)
+   - [Adding Pre-Flight Probers (Layer -1)](#adding-pre-flight-probers-layer--1)
    - [Adding a New Browser Engine (Layer 1)](#adding-a-new-browser-engine-layer-1)
    - [Adding Evasion Patches (Layer 0)](#adding-evasion-patches-layer-0)
    - [Adding UI Analyzers & Classifiers (Layer 2)](#adding-ui-analyzers--classifiers-layer-2)
@@ -29,16 +30,21 @@ This document provides complete guidelines for setting up your development envir
 
 ## Code of Conduct
 
-We are committed to providing a welcoming, inclusive, and harassment-free experience for everyone. Please be respectful and constructive in all issues, discussions, and pull requests.
+We are committed to providing a welcoming, inclusive, and harassment-free experience for everyone. All contributors and maintainers are expected to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). Please report any violations to [security@scrui.dev](mailto:security@scrui.dev).
 
 ---
 
 ## Architecture Overview
 
-UI Cloner is structured into 5 specialized pipeline layers:
+Scrui is structured into 6 specialized pipeline layers:
 
 ```
 ┌────────────────────────────────────────────────────────┐
+│  LAYER -1: Pre-Flight Profiler & Telemetry Oracle      │
+│  Fast Edge Probe · WAF Detect · Dynamic ETA Countdown  │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+┌──────────────────────────▼─────────────────────────────┐
 │  LAYER 0: Anti-Detection & Network Evasion             │
 │  TLS JA3/JA4 · HTTP/2/3 · WebGL · Canvas · CDP Cloak   │
 └──────────────────────────┬─────────────────────────────┘
@@ -61,7 +67,7 @@ UI Cloner is structured into 5 specialized pipeline layers:
                            │
 ┌──────────────────────────▼─────────────────────────────┐
 │  LAYER 4: Validation & Structured Storage              │
-│  Pixel Diff · Qwen2.5-VL · SHA-256 Dedupe · SQLite DB   │
+│  Pixel Diff · Closed-Loop Auto-Correct · SQLite DB     │
 │  Dual Output: <site_name>/ & data_structure/           │
 └────────────────────────────────────────────────────────┘
 ```
@@ -273,8 +279,14 @@ When contributing new features:
 
 ## Security & Responsible Disclosure
 
-If you discover a security vulnerability or sensitive evasion leak, please **do not open a public issue**. Email the maintainers directly at `security@uicloner.dev` or use GitHub's private vulnerability reporting feature.
+If you discover a security vulnerability or sensitive evasion leak, please **do not open a public issue**. Follow our [Security Policy](SECURITY.md) to submit a confidential report or email [security@scrui.dev](mailto:security@scrui.dev).
 
 ---
 
-Thank you for helping make UI Cloner the most capable, high-fidelity UI cloning platform!
+## Community & Support
+
+Have questions, ideas, or feedback? Check out our [Support Guide](SUPPORT.md) or start a conversation on [GitHub Discussions](https://github.com/brovk2008/Scrui/discussions).
+
+---
+
+Thank you for helping make Scrui the most capable, high-fidelity UI cloning platform!
