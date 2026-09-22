@@ -282,6 +282,14 @@ class OutputConfig(BaseModel):
     data_folder_name: str = "data_structure"  # Configurable structured data directory name
 
 
+class PreflightConfig(BaseModel):
+    """Configuration for Layer -1 Pre-Flight Profiler & Predictive Telemetry."""
+    enabled: bool = True
+    probe_timeout_seconds: float = 6.0
+    estimate_timeline: bool = True
+    save_preflight_report: bool = True
+
+
 # ---------------------------------------------------------------------------
 # Master config
 # ---------------------------------------------------------------------------
@@ -290,6 +298,7 @@ class UICloneConfig(BaseModel):
     """Master configuration for the UI Cloning Engine."""
 
     # Sub-configs
+    preflight: PreflightConfig = PreflightConfig()
     browser: BrowserConfig = BrowserConfig()
     fingerprint: FingerprintConfig = FingerprintConfig()
     evasion: EvasionConfig = EvasionConfig()

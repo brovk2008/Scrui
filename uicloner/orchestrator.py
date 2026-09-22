@@ -33,10 +33,11 @@ class CloneResult:
     error: Optional[str] = None
     warnings: list[str] = field(default_factory=list)
     stats: dict = field(default_factory=dict)
+    preflight: Optional[dict] = None
 
 
-# Progress callback type: (step_name, progress_0_to_1, message)
-ProgressCallback = Callable[[str, float, str], None]
+# Progress callback type: (step_name, progress_0_to_1, message, optional_snapshot)
+ProgressCallback = Callable[..., None]
 
 
 async def run_clone(
@@ -48,10 +49,23 @@ async def run_clone(
     Full pipeline: launch browser → extract → process → validate → output.
     """
     start_time = time.time()
+    oracle = None
 
     def emit(step: str, pct: float, msg: str):
+        nonlocal oracle
+        snapshot = None
+        if oracle:
+            snapshot = oracle.step(step, msg, intra_phase_progress=pct)
+            pct = snapshot.percent_done / 100.0
+
         if progress:
-            progress(step, pct, msg)
+            import inspect
+            sig = inspect.signature(progress)
+            if len(sig.parameters) >= 4:
+                progress(step, pct, msg, snapshot)
+            else:
+                eta_suffix = f" [{snapshot.eta_formatted}]" if snapshot and snapshot.eta_formatted else ""
+                progress(step, pct, f"{msg}{eta_suffix}")
         logger.info(f"[{step}] {int(pct*100)}% — {msg}")
 
     # Determine output directory
@@ -63,12 +77,24 @@ async def run_clone(
 
     serializer = OutputSerializer(clone_dir, config, site_name=site_slug)
 
-    emit("init", 0.0, f"Starting clone of {url}")
+    # -----------------------------------------------------------------------
+    # Layer -1: Pre-Flight Profiler & Predictive Telemetry Oracle
+    # -----------------------------------------------------------------------
+    if getattr(config, "preflight", None) and getattr(config.preflight, "enabled", True):
+        emit("preflight", 0.02, "Probing target edge infrastructure, WAF signatures & DOM complexity...")
+        try:
+            from uicloner.layers.layer_preflight import run_preflight
+            oracle = await run_preflight(url, config)
+            emit("preflight", 0.05, f"Profile ready: {oracle.profile.summary_line} (Est. {oracle.plan.total_estimated_seconds:.1f}s)")
+        except Exception as e:
+            logger.warning(f"Pre-flight profiling partial failure: {e}")
+
+    emit("init", 0.05, f"Starting clone of {url}")
 
     # -----------------------------------------------------------------------
     # Layer 0 + 1: Browser launch
     # -----------------------------------------------------------------------
-    emit("browser", 0.05, "Launching stealth browser...")
+    emit("browser", 0.08, "Launching stealth browser...")
     session = None
     try:
         from uicloner.layers.layer1_browser import BrowserEngineSelector
@@ -366,7 +392,14 @@ async def run_clone(
         # Index assets in SQLite
         serializer.index_assets_sqlite(list(asset_records.values()))
 
+        # Save Layer -1 pre-flight diagnostics
+        if oracle and getattr(config.preflight, "save_preflight_report", True):
+            serializer.write_json("preflight", oracle.to_dict())
+
         elapsed = time.time() - start_time
+        if oracle:
+            oracle.mark_complete(f"Clone complete in {elapsed:.1f}s → {clone_dir}")
+
         serializer.write_manifest(
             meta=dom_data.get("meta", {}),
             url=url,
@@ -392,6 +425,7 @@ async def run_clone(
                 "elements": len(dismantle_report.elements) if dismantle_report else 0,
                 "buttons": dismantle_report.buttons_count if dismantle_report else 0,
             },
+            preflight=oracle.to_dict() if oracle else None,
         )
 
     except Exception as exc:

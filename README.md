@@ -1,243 +1,216 @@
-# UI Cloner v2.0
+<p align="center">
+  <img src="image.png" alt="Scrui Logo" width="520" />
+</p>
 
-> **High-Fidelity UI Extraction & Cloning Engine** — Production-grade system for pixel-identical, interactively-equivalent web UI cloning.
+<h1 align="center">Scrui</h1>
 
----
+<p align="center">
+  <strong>High-Fidelity Predictive UI Extraction, Reverse-Engineering & Cloning Engine</strong><br/>
+  <em>Production-grade browser orchestration, predictive timeline telemetry, animation rebinding, behavioral state mining & pixel-perfect reconstruction</em>
+</p>
 
-## Features
-
-| Module | Capability |
-|--------|-----------|
-| **Stealth Browser** | nodriver → Patchright → Camoufox fallback chain |
-| **TLS Impersonation** | JA3/JA4/HTTP2/HTTP3 via curl_cffi (Chrome131 profile) |
-| **Fingerprinting** | BrowserForge statistically-realistic profiles per session |
-| **DOM Capture** | Full DOM tree with CSS, scripts, meta — all via CDP |
-| **UI Dismantler** | Reverse-engineers all elements, buttons, forms, a11y & design tokens |
-| **Site Crawler** | Async BFS crawler with robots.txt, sitemap.xml & full link graph |
-| **Animation Fidelity** | CSS keyframes, WAAPI, GSAP, Lottie inlining & scroll-rebind runtime |
-| **Shadow DOM** | DSD `getHTML()` primary + CDP `pierce:true` recursive fallback |
-| **Event Listeners** | 3-step BackendNodeId → RemoteObject → DOMDebugger resolution |
-| **Framework Events** | React fiber, Vue `__vue_app__`, Angular `getAllAngularRootElements` |
-| **Storage & Dedupe** | SHA-256 asset deduplication + searchable SQLite index (`assets.db`) |
-| **Canvas/WebGL** | Screenshot capture + API hook capture + draw call recording |
-| **WASM** | wasm2wat decompilation + HuggingFace LLM JS shim generation |
-| **JS Deobfuscation** | webcrack debundling + Qwen2.5-Coder identifier renaming |
-| **Anti-Bot** | Canvas noise, WebGL spoof, WebRTC disable, Bézier mouse, audio FP |
-| **CAPTCHA** | 2captcha v2 API — reCAPTCHA v2/v3, hCaptcha, Turnstile, DataDome |
-| **VLM Validation** | Qwen2.5-VL screenshot comparison + Pillow pixel diff |
-| **Session** | Full cookie + localStorage + sessionStorage persistence |
-| **TUI** | Textual interactive terminal with keyboard navigation |
-| **CLI** | Typer CLI with `clone`, `dismantle`, `crawl`, `sitemap`, `batch` |
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Python-3.10%2B-ff2a85.svg" alt="Python"></a>
+  <a href="#"><img src="https://img.shields.io/badge/UI_Theme-8--bit_Blue_|_Cyber_Pink-00a2ff.svg" alt="Theme"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Architecture-Layer--1_to_Layer_4-brightgreen.svg" alt="Architecture"></a>
+</p>
 
 ---
 
-## Output Structure
+## ⚡ Features & Capabilities
 
-Every clone produces a clean dual-folder layout:
+| Layer / Module | Capability |
+|----------------|------------|
+| **Layer -1: Pre-Flight Profiler** | Fast zero-browser edge probe, CDN/WAF detection (Cloudflare, Akamai, Imperva), tech stack fingerprinting & dynamic ETA / % timeline estimation |
+| **Layer 0: Stealth Evasion** | TLS JA3/JA4/HTTP2/HTTP3 impersonation (Chrome 131), BrowserForge fingerprinting, Canvas noise seeding & WebGL spoofing |
+| **Layer 1: Browser Pool** | Autonomous fallback chain: `nodriver` (CDP-direct) → `Patchright` → `Camoufox` |
+| **Layer 2: DOM & Shadow DOM** | Full DOM snapshot via CDP + Declarative Shadow DOM (DSD) `getHTML()` piercing fallback |
+| **Layer 2: Event Listeners** | 3-step `BackendNodeId` → `RemoteObject` → `DOMDebugger` resolution + React/Vue/Angular framework events |
+| **Layer 2: Animation Engine** | CSS keyframes, WAAPI, GSAP, and Lottie inlining with automated scroll-rebind runtime generation |
+| **Layer 2.5: UI Dismantler** | Reverse-engineers all elements, buttons, forms, headings, a11y contrast audit & design tokens |
+| **Layer 2.6: State Explorer** | Autonomous behavioral mining: discovers hover transitions, focus rings & accordion disclosures |
+| **Layer 3: Asset & Deduplication** | SHA-256 asset content-hash deduplication + searchable SQLite index (`assets.db`) |
+| **Layer 3: JS Deobfuscation** | webcrack debundling + Qwen2.5-Coder identifier renaming |
+| **Layer 4: Assembly & Auto-Correct**| Self-contained single-file HTML clone + closed-loop visual auto-correction engine |
+| **CAPTCHA Solving** | 2captcha v2 API — reCAPTCHA v2/v3, hCaptcha, Turnstile, DataDome slider |
+| **Site Crawler & Sitemap** | Async BFS crawler with robots.txt, sitemap.xml & interactive link hierarchy graph |
+| **CLI & TUI Experience** | Retro 8-bit electric blue logo (`#00a2ff`), cyberpunk pink UI (`#ff2a85`), and real-time operational telemetry |
+
+---
+
+## 📂 Output Structure
+
+Every clone produces a clean dual-folder layout separating the standalone cloned website from its reverse-engineered data structure:
 
 ```
 clones/
 └── site_cloned_example-com_20260922_183045/
-    ├── example-com/               ← The cloned website (named after the site)
-    │   ├── index.html             ← Self-contained, interactive single-file HTML
+    ├── example-com/               ← The cloned website (named after the target)
+    │   ├── index.html             ← Self-contained, interactive single-file HTML clone
     │   └── assets/                ← Extracted and deduplicated assets
     │       ├── images/            ← Images (deduplicated by SHA-256)
     │       ├── fonts/             ← Web fonts (WOFF2/TTF)
     │       ├── videos/            ← Video media
-    │       ├── css/               ← Stylesheets
-    │       └── js/                ← Scripts
+    │       ├── css/               ← Extracted stylesheets
+    │       └── js/                ← Scripts & runtime shims
     └── data_structure/            ← Comprehensive reverse-engineered data
+        ├── preflight.json         ← Layer -1 Target profile, WAF fingerprint & execution plan
         ├── manifest.json          ← Metadata, timing, engine & analysis summary
-        ├── elements.jsonl         ← Every dismantled element (box, styles, a11y, role)
-        ├── components.json        ← Categorized components (buttons, forms, modals)
-        ├── design_system.json     ← Color palette, typography scale & design tokens
-        ├── sitemap.json           ← Complete page hierarchy & link graph
-        ├── dom_tree.json          ← Full CDP DOM tree
-        ├── styles.json            ← All extracted stylesheets & rules
-        ├── scripts.json           ← Scripts (deobfuscated if enabled)
-        ├── assets.jsonl           ← Asset catalog with MIME, sizes & SHA-256 hashes
-        ├── assets.db              ← Searchable SQLite database (query elements & assets via SQL!)
-        ├── events.json            ← Event listeners & framework triggers map
-        ├── animations.json        ← WAAPI, GSAP, CSS keyframes, Lottie data
-        ├── shadow_dom.json        ← Pierced Shadow DOM tree & DSD HTML
-        ├── canvas.json            ← Canvas screenshots & WebGL draw calls
-        └── validation.json        ← Pixel diff & VLM fidelity report
+        ├── assets.db              ← SQLite database indexing all assets with SHA-256 hashes
+        ├── assets.jsonl           ← Asset metadata stream (URL, hash, size, mime, path)
+        ├── elements.jsonl         ← Dismantled UI elements with bounding boxes & computed styles
+        ├── components.json        ← Button/form/navigation inventory & a11y audit
+        ├── design_system.json     ← Extracted color palette, typography & design tokens
+        ├── behavior.json          ← Mined hover transitions, focus rings & disclosures
+        ├── auto_corrections.json  ← Visual optimizer iteration history & CSS patches
+        ├── dom_tree.json          ← Complete serializable DOM tree
+        ├── events.json            ← Event listeners & framework event mappings
+        ├── animations.json        ← Extracted keyframes & synthetic GSAP timeline
+        └── shadow_dom.json        ← Pierced Shadow DOM roots & slot maps
 ```
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-# Install Python package
+# Clone the repository
+git clone https://github.com/brovk2008/Scrui.git
+cd Scrui
+
+# Install dependencies
+pip install -r requirements.txt
 pip install -e .
 
-# Install Node.js tools (for JS deobfuscation)
-npm install -g webcrack
-
-# Install browsers
+# Install browser runtimes
 python -m playwright install chromium
-python -m camoufox fetch  # Downloads patched Firefox
-
-# Install WABT (for WASM decompilation)
-# Windows: https://github.com/WebAssembly/wabt/releases
-# Linux: apt-get install wabt
+python -m camoufox fetch  # Patched Firefox
 ```
 
-### Usage
+---
 
-#### Interactive TUI (recommended)
+## 💻 CLI Commands & UI Experience
+
+When running Scrui in CMD or PowerShell, the interface displays the **8-bit Electric Blue Logo** (`#00a2ff`) with a **Neon Pink Theme** (`#ff2a85`) and live telemetry tracking.
+
+### 1. Clone a Website (with Layer -1 Telemetry)
+```bash
+uiclone clone https://stripe.com
+```
+
+Before launching the browser, **Layer -1** analyzes the target and displays a pre-flight profile:
+- Target Host, IP, and round-trip network latency
+- Edge CDN & WAF detection (Cloudflare cf-ray, Akamai, CloudFront)
+- Technology stack (Next.js, React, Tailwind CSS, GSAP, etc.)
+- Resource volume & DOM complexity score
+- Predicted timeline and dynamic ETA countdown (`~00:24 left`)
+
+### 2. Common Options
+```bash
+# High-speed clone saving assets both as files and embedded data
+uiclone clone https://example.com --images both --fonts base64 --data-format jsonl
+
+# With 2captcha API key
+uiclone clone https://example.com --captcha-key YOUR_2CAPTCHA_KEY
+
+# With proxy rotation
+uiclone clone https://example.com --proxy proxy.host:8080:user:pass
+
+# Using alternative browser engine (patchright or camoufox)
+uiclone clone https://example.com --engine patchright
+```
+
+### 3. Dismantle UI Elements & Tokens
+```bash
+uiclone dismantle https://example.com
+```
+Reverse-engineers every button, form control, card, modal, typography rule, and color palette into `data_structure/`.
+
+### 4. Crawl Site & Generate Comprehensive Sitemap
+```bash
+uiclone crawl https://example.com --max-pages 50 --depth 3
+```
+
+### 5. Interactive Terminal UI (TUI)
 ```bash
 uiclone tui
 ```
-Keyboard shortcuts:
-- `Tab` / `Arrow keys` — navigate between elements
-- `Enter` — select / confirm  
-- `Ctrl+S` — save settings
-- `Ctrl+Q` — quit
-
-#### Clone a single URL
-```bash
-uiclone clone https://example.com
-
-# With options
-uiclone clone https://example.com \
-  --engine nodriver \
-  --images both \
-  --fonts base64 \
-  --data-format jsonl \
-  --output ./my-clones
-
-# With CAPTCHA solving
-uiclone clone https://example.com --captcha-key YOUR_2CAPTCHA_KEY
-
-# With proxy
-uiclone clone https://example.com --proxy proxy.host:8080:user:pass
-```
-
-#### Batch clone from file
-```bash
-# urls.txt — one URL per line, # for comments
-uiclone batch urls.txt --output ./clones --concurrent 2
-```
-
-#### View/export configuration
-```bash
-uiclone config                          # Show current settings
-uiclone config --export my-config.yaml  # Export defaults to file
-```
+Keyboard-driven dashboard built with Textual for live monitoring, setting configuration, and batch runs.
 
 ---
 
-## Configuration
+## ⚙️ Configuration
 
-All settings are in [`config.yaml`](./config.yaml). Key options:
+All settings can be configured via [`config.yaml`](./config.yaml) or CLI options:
 
-| Setting | Values | Default | Description |
-|---------|--------|---------|-------------|
-| `browser.primary_engine` | `nodriver` / `patchright` / `camoufox` | `nodriver` | Browser engine |
-| `storage.images` | `base64` / `raw` / `both` / `url` | `base64` | Image storage format |
-| `storage.fonts` | `base64` / `raw` / `url` | `base64` | Font storage format |
-| `storage.videos` | `raw` / `url` | `raw` | Video storage format |
-| `storage.data_format` | `jsonl` / `json` / `both` | `jsonl` | Data output format |
-| `network.proxy_tier` | `none` / `residential` / `isp` / `datacenter` | `none` | Proxy tier |
-| `extraction.js_deobfuscate` | `true` / `false` | `true` | JS deobfuscation |
-| `captcha.enabled` | `true` / `false` | `false` | 2captcha solving |
-| `validation.run_vlm_check` | `true` / `false` | `false` | VLM screenshot compare |
+```yaml
+preflight:
+  enabled: true                    # Run Layer -1 target profiler & ETA estimator
+  probe_timeout_seconds: 6.0
+  estimate_timeline: true
+  save_preflight_report: true      # Saves data_structure/preflight.json
 
-### Environment Variables
+browser:
+  primary_engine: nodriver         # nodriver, patchright, camoufox
+  headless: false
+  network_idle_timeout_ms: 2000
 
-```bash
-HF_API_KEY=hf_...              # HuggingFace API key (for VLM + code models)
-TWO_CAPTCHA_KEY=...            # 2captcha API key
+storage:
+  images: base64                   # base64, raw, both, url
+  fonts: base64                    # base64, raw, url
+  data_format: jsonl               # jsonl, json, both
+  deduplicate_assets: true         # SHA-256 deduplication
+  build_sqlite_index: true         # Generates assets.db
+
+analysis:
+  enabled: true                    # UI element dismantler
+  explore_states: true             # Hover/focus mining
+
+validation:
+  auto_correct: true               # Closed-loop visual optimizer
+  fidelity_threshold_percent: 95.0
 ```
 
 ---
 
-## Models Used
+## 🏗️ Architecture Pipeline
 
-| Task | Model | Mode |
-|------|-------|------|
-| VLM Validation | `Qwen/Qwen2.5-VL-7B-Instruct` | HF Inference API |
-| JS Deobfuscation | `Qwen/Qwen2.5-Coder-7B-Instruct` | HF Inference API |
-| WASM Decompilation | `Qwen/Qwen2.5-Coder-7B-Instruct` | HF Inference API |
-
-No local GPU required — all inference runs via the free HuggingFace Inference API.  
-For local inference, install `pip install transformers torch accelerate` and set `huggingface.use_local: true`.
-
----
-
-## CAPTCHA Support (2captcha)
-
-Supported CAPTCHA types via [2captcha API v2](https://2captcha.com/api-docs):
-
-| Type | Task Type |
-|------|-----------|
-| reCAPTCHA v2 | `RecaptchaV2TaskProxyless` |
-| reCAPTCHA v3 | `RecaptchaV3TaskProxyless` |
-| hCaptcha | `HCaptchaTaskProxyless` |
-| Cloudflare Turnstile | `TurnstileTaskProxyless` |
-| Image CAPTCHA | `ImageToTextTask` |
-| DataDome | `DataDomeSliderTask` |
-
-Auto-detection is on by default — the engine detects CAPTCHA type and solves it automatically.
-
----
-
-## Anti-Detection Hardening Checklist
-
-Before every session, the engine verifies:
-
-- ✅ `navigator.webdriver` → `undefined`
-- ✅ `chrome.runtime` → mock object present  
-- ✅ `navigator.plugins` → min 3 entries
-- ✅ `screen.width/height` → realistic non-zero values
-- ✅ Canvas `toDataURL()` → session-seeded noise
-- ✅ WebGL `RENDERER`/`VENDOR` → real GPU profile
-- ✅ TLS JA3 → Chrome131 profile (curl_cffi)
-- ✅ HTTP/3 ALPN → correct cipher suite ordering with GREASE
-- ✅ WebRTC → disabled (no local IP leak)
-- ✅ Mouse movements → Bézier curves, not straight lines
-- ✅ Audio context → sub-perceptual noise normalization
-
----
-
-## Architecture
-
-```
-TARGET URL
-    │
-    ▼ Layer 0 — Evasion & Ingress
-    │  TLS impersonation · Proxy rotation · Honeypot detection
-    │
-    ▼ Layer 1 — Stealth Browser Pool
-    │  nodriver/Patchright/Camoufox · BrowserForge fingerprints
-    │  CDP WebSocket · Pre-load stealth scripts
-    │
-    ▼ Layer 2 — Extraction Orchestrator
-    │  DOM snapshot · Shadow DOM · Event listeners
-    │  Animations · Canvas/WebGL · Network interception
-    │
-    ▼ Layer 3 — Post-Processing
-    │  JS deobfuscation · Asset processing · WASM decompilation
-    │
-    ▼ Layer 4 — VLM Validation
-    │  Pixel diff · Qwen2.5-VL screenshot comparison
-    │
-    ▼ OUTPUT
-       site/index.html (self-contained)
-       data/*.jsonl (structured extraction data)
+```text
+       TARGET URL
+           │
+           ▼ Layer -1 — Pre-Flight Profiler & Predictive Telemetry Oracle
+           │  Fast edge probe · WAF detection · Tech stack fingerprinting
+           │  Dynamic ETA countdown · % completed · Live operational tracking
+           │
+           ▼ Layer 0 — Anti-Bot Evasion & Fingerprinting
+           │  TLS impersonation (Chrome 131) · BrowserForge profiles · Canvas noise
+           │
+           ▼ Layer 1 — Stealth Browser Orchestration Pool
+           │  nodriver / Patchright / Camoufox · CDP connection · Stealth scripts
+           │
+           ▼ Layer 2 — DOM, Event & Animation Extraction
+           │  DOM snapshotting · DSD Shadow DOM piercing · DOMDebugger listeners
+           │  CSS Keyframes · WAAPI · GSAP timeline baking · Scroll drivers
+           │
+           ▼ Layer 2.5 & 2.6 — UI Dismantler & State Explorer
+           │  Button & component breakdown · Contrast audit · Hover/focus mining
+           │
+           ▼ Layer 3 — Asset Pipeline, Deduplication & Deobfuscation
+           │  SHA-256 deduplication · SQLite indexing (`assets.db`) · webcrack
+           │
+           ▼ Layer 4 — Single-File HTML Assembly & Visual Auto-Correction
+           │  Single-file packaging · Inlined runtimes · Closed-loop pixel diff
+           │
+           ▼ OUTPUT
+              ├── <site_name>/index.html (Single-file pixel-identical clone)
+              └── data_structure/ (Preflight, SQLite index, JSONL datasets)
 ```
 
 ---
 
-## Legal Notice
+## 📄 License
 
-This tool must only be used on:
-- Websites you own
-- Websites you have explicit authorization to scrape
-- Websites where scraping is permitted by their Terms of Service
-
-Misuse for unauthorized access is strictly prohibited.
+This project is licensed under the **Apache License 2.0** — see the [LICENSE](LICENSE) file for details.
